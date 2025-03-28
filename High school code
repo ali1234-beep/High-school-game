@@ -2,7 +2,6 @@
 ########## - READ THE FIRST LINE
 ####### - READ THE FIRST LINE
 ######## - READ THE FIRST LINE
-
 import time 
 import sys
 import random
@@ -13,10 +12,8 @@ import pygame
 import select  
 from enum import Enum
 
-# Initialize colorama for colored text
 init(autoreset=True)
 
-# Fix the Difficulty class definition and initialization
 class Difficulty:
     def __init__(self, iq_gain, iq_loss, starting_iq, questions):
         self.iq_gain = iq_gain
@@ -24,19 +21,17 @@ class Difficulty:
         self.starting_iq = starting_iq
         self.questions = questions
 
-# Create difficulty levels as class attributes
 Difficulty.EASY = Difficulty(15, 3, 120, "easy")
 Difficulty.NORMAL = Difficulty(10, 5, 100, "normal")
 Difficulty.HARD = Difficulty(5, 10, 80, "hard")
 
-# Fix the completed_paths dictionary in GameState class
 class GameState:
     def __init__(self):
         global inventory
         self.inventory = inventory
-        self.iq = 100  # Starting IQ
+        self.iq = 100
         self.completed_paths = {
-            "darlingtonpark": {  # Changed from "darlington" to match location key
+            "darlingtonpark": {
                 "completed": False,
                 "areas": {
                     "hiking_trail": False,
@@ -262,7 +257,7 @@ science_questions = [
     ("What is the largest planet?", "jupiter"),
     ("What is the chemical symbol for gold?", "au"),
     ("What gas do plants absorb?", "carbon dioxide"),
-    ("What is the speed of light?", "299792458"),
+    ("What is 100 C (celcius) in kevlin", "373k"),
     ("What is the closest star to Earth?", "sun"),
     ("What is the study of fossils called?", "paleontology"),
     ("What is the most abundant gas in Earth's atmosphere?", "nitrogen")
