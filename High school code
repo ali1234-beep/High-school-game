@@ -1,7 +1,23 @@
+# Read the first couple of lines to get an idea on how to run/play the game.
+
 #FIRST THING TO DO IS INSTALL EVERYTHING, "pip install pygame, pip install colorama" - DO THIS IN THE CONSOLE PLEASE!!!!!!!!!
 ########## - READ THE FIRST LINE
 ####### - READ THE FIRST LINE
 ######## - READ THE FIRST LINE
+
+# - MAIN GAME TUTORIAL - 
+
+#The game premise is that someone has stolen your diploma (the game has multiple people that is randomized to steal your diploma each time you run the game) you are trying to get your diploma back from the robber by following clues and completing areas around courtice. Once you complete the areas you can confront the robber. You get iq for completing areas and your final iq wil be recorded as a .txt file that will display everytime you run the game and compelte it.
+
+# This game has many difficulties, I recommend you start with level 1 (easy mode), you have to complete 1 area from each main area. The more areas you complete, the higher final iq you will have.
+
+# Items will be used at the end of the game, the main function of the Inventory system is just to see what items you have.
+
+# Some of the questions are unresonably hard and some are really easy, the reason some questions may repeat for one area is because each area has it's own seperate list of questiosn it will ask you, and it's also very hard to come up with questions.
+
+########### - MINIGAME TUTORIAL/HOW TO PLAY!!!!!!!!!!!!
+########## - SPAM 'ENTER' AS FAST AS YOU CAN SO THAT THE GAME RUNS PROPERLY/SMOOTHLY AND USE A AND D TO MOVE LEFT AND RIGHT!!!!!!!!!!!!!!!!
+
 import time 
 import sys
 import random
@@ -9,7 +25,7 @@ import os
 from colorama import Fore, Style, init
 import tkinter as tk
 import pygame
-import select  
+pygame.init()
 from enum import Enum
 
 init(autoreset=True)
@@ -27,8 +43,7 @@ Difficulty.HARD = Difficulty(5, 10, 80, "hard")
 
 class GameState:
     def __init__(self):
-        global inventory
-        self.inventory = inventory
+        self.inventory = []
         self.iq = 100
         self.completed_paths = {
             "darlingtonpark": {
@@ -92,36 +107,29 @@ class GameState:
         except Exception as e:
             type_writter(f"Error saving high score: {e}", color=Fore.RED)
 
-# Modify SettingsWindow class
 class SettingsWindow:
     def __init__(self, game_state):
         self.game_state = game_state
         self.root = tk.Tk()
         self.root.title("Game Settings")
         
-        # Inventory display
         self.inv_label = tk.Label(self.root, text="Inventory:")
         self.inv_label.pack()
-        self.inv_listbox = tk.Listbox(self.root, width=30, height=10)  # Make listbox bigger
-        self.inv_listbox.pack(padx=10, pady=5)  # Add padding
+        self.inv_listbox = tk.Listbox(self.root, width=30, height=10)
+        self.inv_listbox.pack(padx=10, pady=5)
         
-        # Update inventory immediately
         self.update_inventory()
         
     def update_inventory(self):
-        """Update inventory list periodically using Tkinter's after method"""
         try:
             self.inv_listbox.delete(0, tk.END)
-            # Use global inventory instead of game_state.inventory
-            for item in inventory:  # Use the global inventory variable
+            for item in inventory:
                 self.inv_listbox.insert(tk.END, item)
         except tk.TclError:
-            return  # Window was closed
+            return
             
-        # Schedule next update
         self.root.after(1000, self.update_inventory)
 
-# Inventory system and special items
 inventory = []
 special_items = {
     "Map Piece": {"desc": "A fragment of the thief's hideout map", "use": "Reveals secret paths when combined"},
@@ -139,7 +147,6 @@ special_items = {
     "Discount Card": {"desc": "Store savings card", "use": "Get better trades with merchants"}
 }
 
-# Characters
 characters = {
     "Principal": "Your school principal, looking worried",
     "Mysterious Stranger": "Someone offering questionable help",
@@ -147,7 +154,6 @@ characters = {
     "Librarian": "Surprisingly tough trivia master" 
 }
 
-# Function to display inventory
 def show_inventory():
     if inventory:
         type_writter("\nYour Inventory:", speed=0.02, color=Fore.CYAN)
@@ -160,7 +166,6 @@ def show_inventory():
             item = input(Fore.YELLOW + "> ").lower()
             if item == 'cancel':
                 return False, None
-            # Match item regardless of case
             for inv_item in inventory:
                 if inv_item.lower() == item:
                     return True, inv_item
@@ -169,7 +174,6 @@ def show_inventory():
         type_writter("Your inventory is empty.", speed=0.02, color=Fore.CYAN)
     return False, None
 
-# Timer-based mechanic
 def countdown(seconds, message=""):
     type_writter(message, speed=0.02, color=Fore.YELLOW)
     for i in range(seconds, 0, -1):
@@ -177,13 +181,12 @@ def countdown(seconds, message=""):
         time.sleep(1)
     print("\n")
 
-# Function to simulate typewriter effect
 def type_writter(text, speed=0.05, color=Fore.WHITE):
     for char in text:
         sys.stdout.write(color + char)
         sys.stdout.flush()
         time.sleep(speed)
-    print(Style.RESET_ALL)  # Reset after printing
+    print(Style.RESET_ALL)
 
 def pause_line():
     print("\n")
@@ -195,7 +198,6 @@ def clear_system():
 def space():
     print("\n")
 
-# Humorous fail messages
 def get_fail_message():
     fail_messages = [
         "Nope. Not even close.",
@@ -207,23 +209,21 @@ def get_fail_message():
         "Bzzzt! Wrong.",
         "Nope. Not your day, is it?",
         "Wrong. Like, really wrong.",
-        "Nah. Maybe next time."
+        "Nah. Maybe next time.",
+        "no... ?",
+        "What school did you go to?"
     ]
     return random.choice(fail_messages)
 
-# Pass message
 pass_message = "Correct! Your IQ has increased."
 
-# Adjust IQ based on the answer
 def adjust_iq(correct, iq, game_state):
-    """Adjust IQ based on difficulty and correctness"""
     if correct:
         iq += game_state.difficulty.iq_gain
     else:
         iq -= game_state.difficulty.iq_loss
     return iq
 
-# Expanded question banks
 geography_questions = [
     ("What is the capital of France?", "Paris"),
     ("What is the capital of Japan?", "Tokyo"),
@@ -234,6 +234,7 @@ geography_questions = [
     ("What ocean is between North America and Europe?", "Atlantic"),
     ("What is the smallest country in the world?", "Vatican City"),
     ("What is the capital of Brazil?", "Brasilia"),
+    ("What is the capital of Canada?","Ottawa"),
     ("What mountain range runs through South America?", "Andes")
 ]
 
@@ -257,20 +258,20 @@ science_questions = [
     ("What is the largest planet?", "jupiter"),
     ("What is the chemical symbol for gold?", "au"),
     ("What gas do plants absorb?", "carbon dioxide"),
-    ("What is 100 C (celcius) in kevlin", "373k"),
+    ("What is the speed of light?", "299792458"),
     ("What is the closest star to Earth?", "sun"),
     ("What is the study of fossils called?", "paleontology"),
     ("What is the most abundant gas in Earth's atmosphere?", "nitrogen")
 ]
 
 history_questions = [
-    ("Who was the first prime minister of canada", "John Alexander Macdonald"),
+    ("Who was the first president of the United States?", "george washington"),
     ("In what year did World War II end?", "1945"),
     ("Who painted the Mona Lisa?", "leonardo da vinci"),
     ("Who was the first person to walk on the moon?", "neil armstrong"),
     ("What year did the Titanic sink?", "1912"),
-    ("Who was the first female Prime Minister of the UK?", "margaret thatcher"),
-    ("In what year did World War I begin?", "1914"),
+    ("Who was the first female Prime Minister of the Canada?", "John Alexander Macdonald"),
+    ("Who was the first female Prime Minister of Canada?", "Kim Campbell"),
     ("Who wrote Romeo and Juliet?", "william shakespeare"),
     ("What ancient wonder still stands in Egypt?", "pyramids"),
     ("Who was the first Emperor of China?", "qin shi huang")
@@ -281,7 +282,7 @@ riddles_questions = [
     ("What has keys but no locks?", "piano"),
     ("What has cities but no houses?", "map"),
     ("What goes up but never comes down?", "age"),
-    ("What has hands but cannot clap?", "clock"),
+    ("You answer me, but I never ask you a question. What am I?", "phone"),
     ("What gets wetter as it dries?", "towel"),
     ("What has a face and two hands but no arms or legs?", "clock"),
     ("What is always in front of you but can't be seen?", "future"),
@@ -315,9 +316,6 @@ sports_questions = [
     ("What sport is played with a racket and a ball?", "tennis")
 ]
 
-# Add these new questions to the existing question banks
-
-# Add to tim_questions
 tim_questions.extend([
     ("What is Tim Hortons' most popular coffee size?", "medium"),
     ("What are Tim Hortons' potato wedges called?", "wedges"),
@@ -328,16 +326,15 @@ tim_questions.extend([
     ("What sport did Tim Horton play?", "hockey"),
     ("What type of pastry is a 'Double Double'?", "coffee"),
     ("What is Tim Hortons' frozen coffee drink called?", "iced capp"),
-    ("What was Tim Hortons' original donut price?", "69 cents")
+    ("What was Tim Hortons' original donut price? (in Cents)", "69")
 ])
 
-# Add to sports_questions
 sports_questions.extend([
-    ("What is the diameter of a basketball hoop?", "18 inches"),
+    ("What is the diameter of a basketball hoop? (in Inches)", "18"),
     ("How many players are on a soccer team?", "11"),
     ("What country invented basketball?", "canada"),
     ("How many periods are in a hockey game?", "3"),
-    ("What is the length of an Olympic swimming pool?", "50 meters"),
+    ("What is the length of an Olympic swimming pool? (In Meters)", "50"),
     ("How many points is a touchdown worth?", "6"),
     ("What color is a tennis ball?", "yellow"),
     ("How many innings in a baseball game?", "9"),
@@ -345,7 +342,6 @@ sports_questions.extend([
     ("What sport is played at Madison Square Garden?", "basketball")
 ])
 
-# Example modification for fight() function
 def fight(enemy_name, iq, game_state):
     player_health = 100
     enemy_health = 100
@@ -354,21 +350,17 @@ def fight(enemy_name, iq, game_state):
     pause_line()
 
     while player_health > 0 and enemy_health > 0:
-        # Display health bars
         type_writter(f"Your Health: {player_health} HP", speed=0.02, color=Fore.GREEN)
         type_writter(f"{enemy_name}'s Health: {enemy_health} HP", speed=0.02, color=Fore.RED)
         space()
 
-        # Get random question from any category
         all_questions = geography_questions + math_questions + science_questions + history_questions + riddles_questions
         question, answer = get_question_for_difficulty(all_questions, game_state.difficulty)
         type_writter(question, speed=0.02, color=Fore.CYAN)
         space()
 
-        # Get player's answer
         player_answer = input(Fore.YELLOW + "Your answer: ").strip()
 
-        # Check answer
         if player_answer.lower() == answer.lower():
             type_writter("Correct! You deal 20 damage to the enemy.", speed=0.02, color=Fore.GREEN)
             enemy_health -= 20
@@ -381,17 +373,14 @@ def fight(enemy_name, iq, game_state):
         pause_line()
         clear_system()
 
-    # Determine fight outcome
     if player_health <= 0:
-        type_writter("💀 You have been defeated. The thief escapes with your diploma.", speed=0.02, color=Fore.RED)
+        type_writter("💀 You have been defeated lol. The thief escapes with your diploma.", speed=0.02, color=Fore.RED)
         return False, iq
     else:
         type_writter(f"🌟 You defeated {enemy_name} and recover a clue!", speed=0.02, color=Fore.GREEN)
         return True, iq
 
-# Intro with ASCII art
 def intro(name, game_state):
-    # Add skip option
     type_writter("Press ENTER to watch intro or type 'skip' to begin:", speed=0.02)
     if input(Fore.YELLOW + "> ").lower() != 'skip':
         type_writter(r"""
@@ -407,10 +396,9 @@ def intro(name, game_state):
         space()
         type_writter(f"Welcome, {name}, to the Courtice Diploma Heist!", speed=0.02)
         type_writter("It's graduation day at Courtice Secondary School, but your diploma has been stolen!", speed=0.02)
-        type_writter("You must track down the thief and recover your diploma before the ceremony ends.", speed=0.02)
+        type_writter("You must track down the thief and recover your diploma before the grad ceremony ends.", speed=0.02)
         pause_line()
     
-    # Add difficulty selection
     type_writter("\nSelect Difficulty:", speed=0.02)
     type_writter("1. Easy (More IQ gain, less loss)", speed=0.02, color=Fore.GREEN)
     type_writter("2. Normal (Standard gameplay)", speed=0.02, color=Fore.YELLOW)
@@ -433,7 +421,6 @@ def intro(name, game_state):
     clear_system()
     start_adventure(game_state)
 
-# Add at the top with other global variables
 completed_paths = {
     "darlingtonpark": False,
     "foodland": False,
@@ -441,26 +428,25 @@ completed_paths = {
     "community": False
 }
 
-# Add thief types with their stories
 thieves = {
-    "Jordan": {
-        "name": "Jordan the Academic",
-        "motive": "Jealous of your grades and wants to be valedictorian",
+    "Karthicc": {
+        "name": "Karthicc the Academic",
+        "motive": "Jealous of your grades and wants to be valedictorian 👨",
         "location": "School Library",
         "weakness": "Coffee",
         "strength": "Math questions",
         "final_item": "Academic Records"
     },
-    "Alex": {
-        "name": "Alex the Athlete",
-        "motive": "Wants revenge for losing team captain position",
+    "Rayan": {
+        "name": "Rayan the Athlete",
+        "motive": "Wants to sell your diploma for profit 🤑🫰",
         "location": "School Gym",
         "weakness": "Energy Drink",
         "strength": "Sports questions",
         "final_item": "Team Trophy"
     },
-    "Morgan": {
-        "name": "Morgan the Hacker",
+    "Aadith": {
+        "name": "Aadith the Hacker 🧑‍💻",
         "motive": "Planning to change everyone's grades",
         "location": "Computer Lab",
         "weakness": "Master Key",
@@ -469,24 +455,18 @@ thieves = {
     }
 }
 
-# Add to global variables
 current_thief = None
 
-# Add difficulty-based question selection
 def get_question_for_difficulty(question_set, difficulty):
     if difficulty.questions == "easy":
-        # Use simpler questions or provide hints
         question, answer = random.choice(question_set)
         return question + " (Hint: First letter is " + answer[0] + ")", answer
     elif difficulty.questions == "hard":
-        # Use harder questions or remove hints
         question, answer = random.choice(question_set)
         return question.replace("?", "? (No hints available)"), answer
     else:
-        # Normal difficulty - standard questions
         return random.choice(question_set)
 
-# Start the adventure
 def start_adventure(game_state):
     iq = game_state.iq
     game_state.current_thief = random.choice(list(thieves.keys()))
@@ -496,15 +476,13 @@ def start_adventure(game_state):
     type_writter(f"Motive: {thieves[game_state.current_thief]['motive']}", speed=0.02, color=Fore.YELLOW)
 
     while not all(loc["completed"] for loc in game_state.completed_paths.values()):
-        # Show available locations
         type_writter("Available locations:", speed=0.02)
         available_locations = []
-        for i, (loc, data) in enumerate(game_state.completed_paths.items(), 1):
+        for loc, data in game_state.completed_paths.items():
             if not data["completed"]:
                 available_locations.append(loc)
                 type_writter(f"{len(available_locations)}. {loc.title()}", speed=0.02, color=Fore.CYAN)
                 
-        # Always show status check as the next number after locations
         status_option = len(available_locations) + 1
         type_writter(f"{status_option}. Check Status", speed=0.02, color=Fore.YELLOW)
         type_writter("(Type 'minigame' to play a random minigame)", speed=0.02, color=Fore.YELLOW)
@@ -525,7 +503,6 @@ def start_adventure(game_state):
             show_inventory()
             continue
             
-        # Update game_state.iq after each location
         if iq != game_state.iq:
             game_state.iq = iq
 
@@ -560,7 +537,6 @@ def start_adventure(game_state):
                         speed=0.02, color=Fore.RED)
             return
         
-        # Show progress after each completed path
         remaining = sum(not x["completed"] for x in game_state.completed_paths.values())
         if remaining > 0:
             type_writter(f"\nYou must investigate {remaining} more location(s) before confronting the thief!", 
@@ -598,12 +574,12 @@ def random_event(iq, inventory):
          "iq_change": (15, -10)}
     ]
     
-    if random.random() < 0.3:  # 30% chance of random event
+    if random.random() < 0.3:
         event = random.choice(events)
         type_writter(event["desc"], speed=0.02, color=Fore.YELLOW)
         pause_line()
         
-        if random.random() < 0.5:  # 50% success rate
+        if random.random() < 0.5:
             type_writter(event["success"], speed=0.02, color=Fore.GREEN)
             if event["item"]:
                 inventory.append(event["item"])
@@ -614,7 +590,6 @@ def random_event(iq, inventory):
             
     return iq
 
-# Add this structure for each major location
 def darlington_park(iq, game_state):
     locations = {
         "hiking_trail": {
@@ -715,14 +690,11 @@ def community_complex(iq, game_state):
     }
     return explore_location(iq, game_state, locations, "Community Complex")
 
-# Fix the explore_location function's key handling
 def explore_location(iq, game_state, locations, location_name):
     while iq >= 50:
-        # Show available areas
         type_writter(f"\nAreas to explore in {location_name}:", speed=0.02)
         available = []
         
-        # Simplify location key handling
         loc_key = location_name.lower().replace(" ", "").replace("complex", "")
         
         if loc_key not in game_state.completed_paths:
@@ -731,7 +703,6 @@ def explore_location(iq, game_state, locations, location_name):
             
         areas = game_state.completed_paths[loc_key]["areas"]
         
-        # Fix the numbering of uncompleted areas
         counter = 1
         for area, completed in areas.items():
             if not completed:
@@ -744,15 +715,13 @@ def explore_location(iq, game_state, locations, location_name):
             game_state.completed_paths[loc_key]["completed"] = True
             break
             
-        # Add option to leave with correct number
         type_writter(f"{counter}. Leave {location_name}", speed=0.02, color=Fore.YELLOW)
         
         choice = input(Fore.YELLOW + f"\nChoose 1-{counter} (or type 'minigame'): ").lower()
         
-        # Add direct minigame access
         if choice == 'minigame':
             type_writter("\nStarting random minigame!", speed=0.02, color=Fore.YELLOW)
-            bonus_iq = play_random_minigame()  # Remove game_state argument
+            bonus_iq = play_random_minigame()
             if bonus_iq > 0:
                 type_writter(f"You gained {bonus_iq} bonus IQ points!", speed=0.02, color=Fore.GREEN)
                 iq += bonus_iq
@@ -773,12 +742,10 @@ def explore_location(iq, game_state, locations, location_name):
             type_writter("Invalid choice!", color=Fore.RED)
             continue
             
-        # Complete the chosen area
         clear_system()
         type_writter(f"\n{locations[current]['desc']}", speed=0.02)
         
-        # Ask questions until area is complete
-        questions_to_complete = 3  # Number of questions needed to complete an area
+        questions_to_complete = 3
         correct_answers = 0
         
         while correct_answers < questions_to_complete:
@@ -798,7 +765,7 @@ def explore_location(iq, game_state, locations, location_name):
                 type_writter(get_fail_message(), color=Fore.RED)
                 iq = adjust_iq(False, iq, game_state)
             
-            game_state.iq = iq  # Update game state IQ
+            game_state.iq = iq
             type_writter(f"\nCurrent IQ: {iq}", speed=0.02, color=Fore.YELLOW)
             
             if iq < 50:
@@ -811,19 +778,16 @@ def explore_location(iq, game_state, locations, location_name):
             pause_line()
             clear_system()
         
-        # Mark area as completed
         areas[current] = True
         type_writter(f"\nArea completed: {current.replace('_', ' ').title()}", color=Fore.GREEN)
         
-        # Random chance for fight
-        if random.random() < 0.4:  # 40% chance for fights
+        if random.random() < 0.4:
             type_writter("\nA suspicious person appears!", speed=0.02, color=Fore.RED)
             win, iq = fight("Mysterious Figure", iq, game_state)
             if not win:
                 continue
         
-        # Increase minigame chance to 50% if no fight occurs
-        elif random.random() < 0.5:  # 50% chance for minigame if no fight (up from 30%)
+        elif random.random() < 0.5:
             type_writter("\nA gust of wind scatters diplomas everywhere!", speed=0.02, color=Fore.YELLOW)
             bonus_iq = catch_diploma_game()
             if bonus_iq > 0:
@@ -835,16 +799,14 @@ def explore_location(iq, game_state, locations, location_name):
 
     return iq
 
-# Confront the thief
 def confront_thief(game_state):
     iq = game_state.iq
-    current_thief = game_state.current_thief  # Get current thief from game state
-    thief = thieves[current_thief]  # Get thief details
+    current_thief = game_state.current_thief
+    thief = thieves[current_thief]
     
     countdown(3, "Preparing for final confrontation...")
     pause_line()
 
-    # Different resolutions based on thief type
     if thief['weakness'] in inventory:
         type_writter(f"You use the {thief['weakness']} against {thief['name']}!", speed=0.02, color=Fore.GREEN)
         type_writter("They surrender immediately!", speed=0.02)
@@ -861,7 +823,6 @@ def confront_thief(game_state):
         iq += 15
         
     else:
-        # Challenge based on thief's strength
         type_writter(f"{thief['name']} challenges you to prove your worth!", speed=0.02)
         if thief['strength'] == "Math questions":
             question, answer = random.choice(math_questions)
@@ -884,11 +845,9 @@ def confront_thief(game_state):
     type_writter("You recover your diploma and prepare to graduate!", speed=0.02, color=Fore.GREEN)
     return iq
 
-# Restore previous ending function
 def determine_ending(game_state):
     type_writter("\nGraduation Results:", speed=0.02, color=Fore.YELLOW)
     
-    # Show inventory effects first
     if "Energy Drink" in inventory:
         type_writter("Energy drink boosts final score!", color=Fore.GREEN)
         game_state.iq += 20
@@ -896,10 +855,8 @@ def determine_ending(game_state):
         type_writter("Lucky lure grants bonus points!", color=Fore.GREEN)
         game_state.iq += 10
         
-    # Show single final score
     type_writter(f"\nFinal IQ: {game_state.iq}", speed=0.02, color=Fore.MAGENTA)
     
-    # Show ending based on IQ
     if game_state.iq >= 150:
         type_writter("🌟 Valedictorian! You graduate with highest honors!", speed=0.02, color=Fore.GREEN)
     elif game_state.iq >= 100:
@@ -909,17 +866,14 @@ def determine_ending(game_state):
     else:
         type_writter("💀 Failed graduation", speed=0.02, color=Fore.RED)
     
-    # Save and show high scores
     game_state.save_high_score(game_state.player_name, game_state.iq)
     type_writter("\nHigh Scores:", speed=0.02, color=Fore.YELLOW)
     for i, (name, score) in enumerate(game_state.high_scores[:5], 1):
         type_writter(f"{i}. {name}: {score}", speed=0.02, color=Fore.CYAN)
     
-    # Ask to play again
     type_writter("\nWould you like to play again? (Y/N)", speed=0.02)
     return input(Fore.YELLOW + "> ").lower() == 'y'
 
-# Add use_item function
 def use_item(item, iq, context=None):
     if item not in inventory:
         type_writter("You don't have that item!", color=Fore.RED)
@@ -962,7 +916,6 @@ def use_item(item, iq, context=None):
     return iq + effect
 
 def ask_question(answer, iq):
-    # Give option to use items before answering
     type_writter("Would you like to use an item before answering? (Y/N)", speed=0.02)
     if input(Fore.YELLOW + "> ").lower() == 'y':
         used, item = show_inventory()
@@ -972,12 +925,9 @@ def ask_question(answer, iq):
     player_answer = input(Fore.YELLOW + "Your answer: ").lower()
     return player_answer == answer.lower(), iq
 
-# Add at top of file
 game_state = None
 
-# Example usage in a location function
 def some_location(iq, game_state):
-    # ...existing code...
     question, answer = get_question_for_difficulty(geography_questions, game_state.difficulty)
     type_writter(question, speed=0.02, color=Fore.CYAN)
     player_answer = input(Fore.YELLOW + "Your answer: ").lower()
@@ -989,9 +939,7 @@ def some_location(iq, game_state):
         iq = adjust_iq(False, iq, game_state)
     return iq
 
-# Add new minigame function
 def catch_diploma_game():
-    """A simple catch game where you move left/right to catch falling diplomas"""
     WIDTH = 20
     HEIGHT = 10
     player_pos = WIDTH // 2
@@ -1007,14 +955,14 @@ def catch_diploma_game():
             line = ""
             for x in range(WIDTH):
                 if [x, y] in diplomas:
-                    line += "📜"  # Diploma
+                    line += "📜"
                 elif y == HEIGHT-1 and x == player_pos:
-                    line += "🏃"  # Player
+                    line += "🏃"
                 else:
                     line += " "
             print(line)
-        print("=" * WIDTH)  # Ground
-        print("Enter 'a' for left, 'd' for right, 'q' to quit")
+        print("=" * WIDTH)
+        print("Use 'a' to move left, 'd' to move right, or 'q' to quit")
 
     type_writter("\nQuick! Catch the falling diplomas!", speed=0.02, color=Fore.YELLOW)
     type_writter("Each catch increases your IQ!", speed=0.02, color=Fore.GREEN)
@@ -1031,27 +979,14 @@ def catch_diploma_game():
                 diplomas.remove(diploma)
                 lives -= 1
         
-        # Replace msvcrt with standard input
         draw_game(player_pos, diplomas, score, lives)
-        try:
-            import select
-            if select.select([sys.stdin], [], [], 0.05)[0]:
-                key = sys.stdin.read(1).lower()
-                if key == 'a':  # Left
-                    player_pos = max(0, player_pos - 2)
-                elif key == 'd':  # Right
-                    player_pos = min(WIDTH-1, player_pos + 2)
-                elif key == 'q':  # Quit
-                    break
-        except:
-            # Fallback for systems without select
-            key = input().lower()
-            if key == 'a':  # Left
-                player_pos = max(0, player_pos - 2)
-            elif key == 'd':  # Right
-                player_pos = min(WIDTH-1, player_pos + 2)
-            elif key == 'q':  # Quit
-                break
+        key = input("Enter your move: ").lower()
+        if key == 'a':
+            player_pos = max(0, player_pos - 2)
+        elif key == 'd':
+            player_pos = min(WIDTH-1, player_pos + 2)
+        elif key == 'q':
+            break
                 
         for diploma in diplomas[:]:
             if diploma[1] == HEIGHT-1 and diploma[0] == player_pos:
@@ -1064,30 +999,22 @@ def catch_diploma_game():
     type_writter(f"\nGame Over! You caught {score} diplomas!", speed=0.02, color=Fore.YELLOW)
     return score * 5
 
-# Add new Minigame class
 class Minigame(Enum):
     CATCH_DIPLOMA = "Catch the Diploma"
-    # Add more minigames here as we create them
 
-# Fix play_random_minigame function
 def play_random_minigame():
-    """Play a random minigame and return IQ points earned"""
     game = random.choice(list(Minigame))
     
     if game == Minigame.CATCH_DIPLOMA:
         return catch_diploma_game()
-    # Add more minigames here as we create them
     
     return 0
 
-# Fix explore_location function's minigame handling
 def explore_location(iq, game_state, locations, location_name):
     while iq >= 50:
-        # Show available areas
         type_writter(f"\nAreas to explore in {location_name}:", speed=0.02)
         available = []
         
-        # Simplify location key handling
         loc_key = location_name.lower().replace(" ", "").replace("complex", "")
         
         if loc_key not in game_state.completed_paths:
@@ -1096,7 +1023,6 @@ def explore_location(iq, game_state, locations, location_name):
             
         areas = game_state.completed_paths[loc_key]["areas"]
         
-        # Fix the numbering of uncompleted areas
         counter = 1
         for area, completed in areas.items():
             if not completed:
@@ -1109,15 +1035,13 @@ def explore_location(iq, game_state, locations, location_name):
             game_state.completed_paths[loc_key]["completed"] = True
             break
             
-        # Add option to leave with correct number
         type_writter(f"{counter}. Leave {location_name}", speed=0.02, color=Fore.YELLOW)
         
         choice = input(Fore.YELLOW + f"\nChoose 1-{counter} (or type 'minigame'): ").lower()
         
-        # Add direct minigame access
         if choice == 'minigame':
             type_writter("\nStarting random minigame!", speed=0.02, color=Fore.YELLOW)
-            bonus_iq = play_random_minigame()  # Remove game_state argument
+            bonus_iq = play_random_minigame()
             if bonus_iq > 0:
                 type_writter(f"You gained {bonus_iq} bonus IQ points!", speed=0.02, color=Fore.GREEN)
                 iq += bonus_iq
@@ -1138,12 +1062,10 @@ def explore_location(iq, game_state, locations, location_name):
             type_writter("Invalid choice!", color=Fore.RED)
             continue
             
-        # Complete the chosen area
         clear_system()
         type_writter(f"\n{locations[current]['desc']}", speed=0.02)
         
-        # Ask questions until area is complete
-        questions_to_complete = 3  # Number of questions needed to complete an area
+        questions_to_complete = 3
         correct_answers = 0
         
         while correct_answers < questions_to_complete:
@@ -1163,7 +1085,7 @@ def explore_location(iq, game_state, locations, location_name):
                 type_writter(get_fail_message(), color=Fore.RED)
                 iq = adjust_iq(False, iq, game_state)
             
-            game_state.iq = iq  # Update game state IQ
+            game_state.iq = iq
             type_writter(f"\nCurrent IQ: {iq}", speed=0.02, color=Fore.YELLOW)
             
             if iq < 50:
@@ -1176,19 +1098,16 @@ def explore_location(iq, game_state, locations, location_name):
             pause_line()
             clear_system()
         
-        # Mark area as completed
         areas[current] = True
         type_writter(f"\nArea completed: {current.replace('_', ' ').title()}", color=Fore.GREEN)
         
-        # Random chance for fight
-        if random.random() < 0.4:  # 40% chance for fights
+        if random.random() < 0.4:
             type_writter("\nA suspicious person appears!", speed=0.02, color=Fore.RED)
             win, iq = fight("Mysterious Figure", iq, game_state)
             if not win:
                 continue
         
-        # Increase minigame chance to 50% if no fight occurs
-        elif random.random() < 0.5:  # 50% chance for minigame if no fight (up from 30%)
+        elif random.random() < 0.5:
             type_writter("\nA gust of wind scatters diplomas everywhere!", speed=0.02, color=Fore.YELLOW)
             bonus_iq = catch_diploma_game()
             if bonus_iq > 0:
@@ -1200,7 +1119,6 @@ def explore_location(iq, game_state, locations, location_name):
 
     return iq
 
-# Modify main game loop
 def main():
     try:
         while True:
@@ -1223,8 +1141,11 @@ def main():
 def cleanup():
     try:
         pygame.mixer.quit()
+        try:
+            pygame.mixer.quit()
+        except pygame.error:
+            pass
         pygame.quit()
-    except:
         pass
     finally:
         print(Fore.YELLOW + "\nThanks for playing!")
